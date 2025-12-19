@@ -39,17 +39,12 @@ public class ProductEntity {
     @Column(name = "stock_quantity", nullable = false)
     private Integer stockQuantity;
 
-    @Version
-    @Column(name = "version", nullable = false)
-    private Long version;
-
     @Column(name = "created_date", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    /* Relationships */
 
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<OrderItemEntity> orderList;
@@ -57,16 +52,6 @@ public class ProductEntity {
     @OneToMany(mappedBy = "product", fetch = FetchType.LAZY)
     private List<CartItemEntity> cartItemList;
 
-    /* Lifecycle hooks */
-
-    @PrePersist
-    protected void onCreate() {
-        this.createdAt = LocalDateTime.now();
-        this.updatedAt = this.createdAt;
-    }
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.updatedAt = LocalDateTime.now();
-    }
+  
 }
+
