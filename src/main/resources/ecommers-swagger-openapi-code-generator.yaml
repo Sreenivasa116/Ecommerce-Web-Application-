@@ -1,0 +1,841 @@
+openapi: 3.0.3
+info:
+  title: Simple E-commerce API
+  description: Backend API for product listing, cart, orders, and user authentication.
+  version: 1.0.0
+  contact:
+    email: sreenivasakurabalakota@gmail.com
+    name: Kurabalakota Sreenivasa
+
+servers:
+  - url: http://localhost:7896
+
+tags:
+  - name: login
+    description: Login forms to login with details
+  - name: Users
+    description: used to  register records
+  - name: Products
+    description: used to deal with products
+  - name: Cart
+    description: Shopping cart operations
+  - name: Orders
+    description: Order placement and history
+  - name : Admin-User
+    description: user end points accessed by admin
+paths:
+
+  /login:
+    post:
+      summary: Login a user
+      tags: [login]
+      operationId: userLogin
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+      responses:
+        '200':
+          description: Login an User
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+        '400':
+          description: Invalid email or password
+
+
+  /user:
+
+    post:
+      summary: Create a new user
+      tags:
+        - Users
+      operationId: createUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserCreateRequest'
+      responses:
+        '201':
+          description: User registered successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input
+
+    get:
+      summary: get all users
+      tags:
+        - Users
+      operationId: getAllUsers
+      responses:
+        '200':
+          description: Get all users successfully
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserResponse'
+        '400':
+          description: Invalid input
+
+
+  /user/byemail/{email}:
+    get:
+      summary: Get an user by email
+      tags:
+        - Users
+      operationId: getUserByEmail
+      parameters:
+        - in: path
+          name: email
+          description: email of the user
+          required: true
+          schema:
+            type: string
+            format: email
+            pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+      responses:
+        '200':
+          description: User Fetched Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+
+  /user/{id}:
+    get:
+      summary: Get an user by ID
+      tags:
+        - Users
+      operationId: getUserById
+      parameters:
+        - in: path
+          name: id
+          description: Id of the user
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: User Fetched Successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+
+    patch:
+      summary: update an user by ID
+      tags:
+        - Users
+      operationId: updateUserById
+      parameters:
+        - in: path
+          name: id
+          description: ID of the user to update
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UserUpdateRequest'
+      responses:
+        '200':
+          description: User updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/UserResponse'
+        '404':
+          description: User not found
+        '400':
+          description: Invalid Request
+
+    delete:
+      tags:
+        - Users
+      operationId: deleteUserById
+      summary: Delete an user by ID
+      parameters:
+        - in: path
+          name: id
+          description: ID of user to delete
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '204':
+          description: User deleted successfully
+        '404':
+          description: User not found
+
+  /user/{id}/update:
+
+    patch:
+      summary: to update user password
+      tags:
+        - Users
+      operationId: toUpdatePassword
+      parameters:
+        - in: path
+          name: id
+          description: User Id
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - oldPassword
+                - newPassword
+              properties:
+                oldPassword:
+                  type: string
+                  pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"
+                  minLength: 10
+                  maxLength: 14
+                newPassword:
+                  type: string
+                  pattern : "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"
+                  minLength: 10
+                  maxLength: 14
+      responses:
+        '200':
+          description: Password updated successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '400':
+          description: Incorrect old password
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description: User not found
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Get all products
+      operationId: getAllProducts
+      responses:
+        '200':
+          description: Fetched all products successsfully....!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/ProductResponse'
+    post:
+      tags:
+        - Products
+      summary: create a Product
+      operationId: createProduct
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductCreateRequest'
+      responses:
+        '200':
+          description: Created product successfully....!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+
+  /products/{id}:
+    get:
+      tags:
+        - Products
+      summary: Get products by id
+      operationId: getProductById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        '200':
+          description: Fetched a product successfully...!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        default:
+          description: Failed to fetch Product
+
+    put:
+      tags:
+        - Products
+      summary:  Update a product by Id
+      operationId: updateProductById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ProductUpdateRequest'
+      responses:
+        '200':
+          description: Updated a product successfully...!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ProductResponse'
+        default:
+          description: Failed to update Product
+
+    delete:
+      tags:
+        - Products
+      summary:  Delete a product by Id
+      operationId: deleteProductById
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: integer
+            minimum: 1
+          required: true
+      responses:
+        '200':
+          description: Deleted a product successfully...!
+          content:
+            application/json:
+              schema:
+                type: string
+        default:
+          description: Failed to delete Product
+
+  /cart/{userId}:
+    get:
+      tags:
+        - Cart
+      summary: Get cart of User by Id
+      operationId: getCartByUserId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: User's Cart with items fetched
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartResponse'
+        '404':
+          description: Cart not found
+
+    delete:
+      tags:
+        - Cart
+      summary: Clear all items from the user's cart
+      operationId: clearCartByUserId
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Cart cleared successfully
+          content:
+            application/json:
+              schema:
+                type: string
+
+  /cart/items:
+    post:
+      tags:
+        - Cart
+      summary: Add item to cart
+      operationId: addItemToCart
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AddCartItemRequest'
+      responses:
+        '201':
+          description: Item Added to Cart
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItemResponse'
+
+  /cart/items/{itemId}:
+
+    put:
+      tags:
+        - Cart
+      summary: Update quantity of an item in the cart
+      operationId: updateCartItemQuantity
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                quantity:
+                  type: integer
+                  minimum: 1
+
+      responses:
+        '200':
+          description: Cart item updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CartItemResponse'
+
+        '404':
+          description: Cart item not found
+
+    delete:
+      tags:
+        - Cart
+      summary: Remove an item from the cart
+      operationId: removeCartItem
+      parameters:
+        - in: path
+          name: itemId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Cart item removed successfully
+          content:
+            application/json:
+              schema:
+                type: string
+        '404':
+          description:  Cart item not found
+
+  /orders:
+    post:
+      tags:
+        - Orders
+      summary: place an order from user cart
+      operationId: placeOrder
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                userId:
+                  type: integer
+                  minimum: 1
+      responses:
+        '200':
+          description: Order placed successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+        default:
+          description: faild ordering
+
+  /orders/user/{userId}:
+    get:
+      tags:
+        - Orders
+      summary: get all orders of an User
+      operationId: getAllOrdersByUser
+      parameters:
+        - in: path
+          name: userId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Orders fetched successfully...!
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+
+  /orders/{orderId}:
+    get:
+      tags:
+        - Orders
+      summary: get a single order by Id
+      operationId: getOrderById
+      parameters:
+        - in: path
+          name: orderId
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        '200':
+          description: Order fetched successfully..!
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Order'
+
+
+
+components:
+
+  schemas:
+
+    LoginRequest:
+      type: object
+      required: [email,password]
+      properties:
+        email:
+          type: string
+          example: xyz@gmail.com
+          format: email
+          maxLength: 254
+          pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        password:
+          type: string
+          pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"
+          minLength: 10
+          maxLength: 14
+          example: JohnWick@1234
+
+
+    LoginResponse:
+      type: object
+      required: [type,token]
+      properties:
+        type:
+          type: string
+          example: Bearer
+        token:
+          type: string
+
+    UserCreateRequest:
+      type: object
+      required: [name,password,email,phoneNumber,address]
+      properties:
+        name:
+          type: string
+          example: john
+          minLength: 3
+          maxLength: 40
+          x-message: "Enter a valid name"
+        password:
+          type: string
+          example: John@123
+          pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"
+          x-message:  "Password must contain Uppercase, Lowercase, Digit, Special character"
+          minLength: 10
+          maxLength: 14
+        role:
+          type: string
+          enum: [CUSTOMER, ADMIN]
+          readOnly: true
+        email:
+          type: string
+          format: email
+          pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+          maxLength: 254
+        phoneNumber:
+          type: string
+          pattern: ^[0-9]{10}$
+          x-message: "Enter a valid phone number"
+        address:
+          type: string
+          minLength: 3
+          maxLength: 120
+          x-message: "Enter a valid Address"
+
+
+    UserResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          example: 1234
+        name:
+          type: string
+          example: John Wick
+        role:
+          type: string
+          enum: [CUSTOMER, ADMIN]
+        email:
+          type: string
+          example: xyz@gmail.com
+        createdDate:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+        updatedAt:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+        phoneNumber:
+          type: string
+        address:
+          type: string
+
+    UserUpdateRequest:
+
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+        password:
+          type: string
+          pattern: "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).*$"
+          minLength: 10
+          maxLength: 14
+        email:
+          type: string
+          format: email
+          pattern: "^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}$"
+        phoneNumber:
+          type: string
+          pattern: "^[0-9]{10}$"
+        address:
+          type: string
+          minLength: 3
+          maxLength: 120
+
+    ProductCreateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+          example: mobiles
+        description:
+          type: string
+          minLength: 3
+          maxLength: 120
+        price:
+          type: number
+          minimum: 1
+        stockQuantity:
+          type: integer
+          minimum: 1
+
+    ProductUpdateRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+          example: mobiles
+        description:
+          type: string
+          minLength: 3
+          maxLength: 120
+        price:
+          type: number
+          minimum: 1
+        stockQuantity:
+          type: integer
+          minimum: 1
+
+
+    ProductResponse:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+          example: 4567
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+          example: mobiles
+        description:
+          type: string
+          minLength: 3
+          maxLength: 120
+        price:
+          type: number
+          minimum: 1
+        createdAt:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+        updatedAt :
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+        stockQuantity:
+          type: integer
+          minimum: 1
+
+    CartResponse:
+      type: object
+      properties:
+        cartItems:
+          type: array
+          items:
+            $ref: '#/components/schemas/CartItemResponse'
+        totalAmount:
+          type: number
+          minimum: 1
+
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          minimum: 1
+        productId:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+        price:
+          type: number
+          minimum: 1
+        quantity:
+          type: integer
+          minimum: 1
+        total:
+          type: number
+          minimum: 1
+
+    CartItemResponse:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+        price:
+          type: number
+          minimum: 1
+        quantity:
+          type: integer
+          minimum: 1
+        total:
+          type: number
+          minimum: 1
+
+    AddCartItemRequest:
+
+      type: object
+      description: to add cart item in to cart
+      required: [productId, quantity,userId]
+      properties:
+        userId:
+          type: integer
+          minimum: 1
+        productId:
+          type: integer
+          minimum: 1
+        quantity:
+          type: integer
+          minimum: 1
+
+    OrderItem:
+      type: object
+      properties:
+        productId:
+          type: integer
+          minimum: 1
+        name:
+          type: string
+          minLength: 3
+          maxLength: 40
+        quantity:
+          type: integer
+          minimum: 1
+        price:
+          type: number
+          minimum: 1
+        total:
+          type: number
+          minimum: 1
+
+    Order:
+      type: object
+      properties:
+        orderId:
+          type: integer
+          minimum: 1
+        orderDate:
+          type: string
+          pattern: '^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}$'
+        totalAmount:
+          type: number
+          minimum: 1
+        status:
+          type: string
+          example: PENDING
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+
+
+
+
