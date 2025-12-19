@@ -1,2 +1,5 @@
 # Ecommerce-Web-Application-
 Built a Java Spring Boot–based e-commerce application with REST APIs for products, users, and orders. Used Hibernate/JPA with PostgreSQL for data management. Documented all endpoints using Swagger/OpenAPI, ensuring clear API visibility, secure access with Spring Security, and followed a clean, scalable architecture Spring MVC.
+Skills Used :  Java ,Collection Framework,Lambda Expression using Java Streams,MicroServices,RestApi,Input Validation,Swagger Open API Documentaion,Hibernate,Hibernate Validation,Jakartha Validation,Java Persistant Application (JPA),Spring Boot,Spring Boot JPA,Spring Security,Map Struct,Lambook,SLF4J Logging,POSTMAN,PostgreSQl,Spring MVC Architecture. 
+Tested each EndPoint with POSTMAN. 
+By Using Global Exception Handling I have managed both Exceptions and Validated Input sent to the Controllers.Working On Production Range, So the security files are not applied yet.When ready the application would work based on Role Like customer and Admin.With Spring Security with JWT and OAUTH security this woulld be production ready. 
